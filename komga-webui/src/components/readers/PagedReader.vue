@@ -7,7 +7,17 @@
                down: () => {if(swipe) {verticalPrev()}}
              }"
   >
-    <v-carousel v-model="carouselPage"
+  <panZoom :options="{
+                        bounds: true,
+                        boundsPadding: 0,
+                        minZoom: 1,
+                        zoomDoubleClickSpeed: 2.5,
+                        filterKey: () => { return true }, // Prevent panzoom to handle keyboard
+                        beforeWheel: () => { return false }, // true to Prevent panzoom to handle wheel
+                        onDoubleClick: onDoubleClick, 
+                        onClick: centerClick,
+                        }" @init="onInitPanzoom" @transform="onTransform">
+      <v-carousel v-model="carouselPage"
                 :show-arrows="false"
                 :continuous="false"
                 :reverse="flipDirection"
@@ -38,39 +48,40 @@
         </div>
       </v-carousel-item>
     </v-carousel>
+  </panZoom>
 
     <!--  clickable zone: left  -->
     <div v-if="!vertical"
          @click="turnLeft()"
          class="left-quarter"
-         style="z-index: 1;"
+         style="z-index: -1;"
     />
 
     <!--  clickable zone: right  -->
     <div v-if="!vertical"
          @click="turnRight()"
          class="right-quarter"
-         style="z-index: 1;"
+         style="z-index: -1;"
     />
 
     <!--  clickable zone: top  -->
     <div v-if="vertical"
          @click="verticalPrev()"
          class="top-quarter"
-         style="z-index: 1;"
+         style="z-index: -1;"
     />
 
     <!--  clickable zone: bottom  -->
     <div v-if="vertical"
          @click="verticalNext()"
          class="bottom-quarter"
-         style="z-index: 1;"
+         style="z-index: -1;"
     />
 
     <!--  clickable zone: menu  -->
     <div @click="centerClick()"
          :class="`${vertical ? 'center-vertical' : 'center-horizontal'}`"
-         style="z-index: 1;"
+         style="z-index: -1;"
     />
   </div>
 </template>
@@ -90,6 +101,7 @@ export default Vue.extend({
       logger: 'PagedReader',
       carouselPage: 0,
       spreads: [] as PageDtoWithUrl[][],
+      panzoomInstance: undefined as any,
     }
   },
   props: {
@@ -199,6 +211,10 @@ export default Vue.extend({
     },
   },
   methods: {
+    onInitPanzoom(panzoomInstance: any, id: any) {
+      this.panzoomInstance = panzoomInstance
+      console.log('onInitPanzoom', panzoomInstance)
+    },
     keyPressed(e: KeyboardEvent) {
       this.shortcuts[e.key]?.execute(this)
     },
@@ -255,6 +271,23 @@ export default Vue.extend({
       } else {
         this.$emit('jump-next')
       }
+    },
+    onDoubleClick(e: MouseEvent) {
+      console.log('onDoubleClick', this.panzoomInstance,e )
+      if (this.panzoomInstance && this.panzoomInstance.getTransform()) {
+        let transform = this.panzoomInstance.getTransform()
+        console.log(transform)
+        if (transform.scale > 2 ) {
+          console.log('smoothZoom-1')
+          setTimeout(() => {this.panzoomInstance.zoomTo(e.offsetX, e.offsetY, 1/(this.panzoomInstance.getTransform().scale))}, 50)
+        }
+      } 
+    },
+    onTransform() {
+      if (this.panzoomInstance && this.panzoomInstance.getTransform()) {
+        let transform = this.panzoomInstance.getTransform()
+        console.log('onTransform', transform, this.panzoomInstance)
+      } 
     },
     toSpreadIndex(i: number): number {
       this.$debug('[toSpreadIndex]', `i:${i}`, `isDoublePages:${this.isDoublePages}`)
@@ -364,8 +397,8 @@ export default Vue.extend({
 }
 
 .img-fit-screen {
-  width: 100vw;
-  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 .img-double-fit-screen {
