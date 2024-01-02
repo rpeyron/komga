@@ -17,6 +17,7 @@
                         onDoubleClick: onDoubleClick, 
                         onClick: centerClick,
                         }" @init="onInitPanzoom" @transform="onTransform">
+
       <v-carousel v-model="carouselPage"
                 :show-arrows="false"
                 :continuous="false"
@@ -213,7 +214,6 @@ export default Vue.extend({
   methods: {
     onInitPanzoom(panzoomInstance: any, id: any) {
       this.panzoomInstance = panzoomInstance
-      console.log('onInitPanzoom', panzoomInstance)
     },
     keyPressed(e: KeyboardEvent) {
       this.shortcuts[e.key]?.execute(this)
@@ -273,12 +273,9 @@ export default Vue.extend({
       }
     },
     onDoubleClick(e: MouseEvent) {
-      console.log('onDoubleClick', this.panzoomInstance,e )
       if (this.panzoomInstance && this.panzoomInstance.getTransform()) {
         let transform = this.panzoomInstance.getTransform()
-        console.log(transform)
         if (transform.scale > 2 ) {
-          console.log('smoothZoom-1')
           setTimeout(() => {this.panzoomInstance.zoomTo(e.offsetX, e.offsetY, 1/(this.panzoomInstance.getTransform().scale))}, 50)
         }
       } 
@@ -286,7 +283,7 @@ export default Vue.extend({
     onTransform() {
       if (this.panzoomInstance && this.panzoomInstance.getTransform()) {
         let transform = this.panzoomInstance.getTransform()
-        console.log('onTransform', transform, this.panzoomInstance)
+        this.$debug('onTransform', transform, this.panzoomInstance)
       } 
     },
     toSpreadIndex(i: number): number {
