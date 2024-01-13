@@ -1,3 +1,54 @@
+This is a fork of [gotson/komga](https://github.com/gotson/komga) with the following features:
+- Add sort option using file date, and default sort option on libraries ([closed PR](https://github.com/gotson/komga/pull/1383))
+- Add basic pan & zoom feature in the web pdf viewer
+
+Additional instructions to build & develop locally below
+
+### Build locally
+
+#### Common steps
+
+- create ~/.jreleaser/config.properties
+```
+JRELEASER_GITHUB_TOKEN=no
+```
+
+- build at least once komga: `./gradlew komga:build` 
+- build & copy UI: `./gradlew prepareThymeLeaf` 
+- build package: `./gradlew jreleaserPackage` 
+
+Build docker image with one of the methods below and redeploy docker with this image
+
+
+#### Build docker without buildx
+
+- find how to pass TARGETARCH, or replace it by amd64 in komga/docker/Dockerfile.tpl
+
+- build docker image: `docker build build/jreleaser/package/komga/docker/  -t komga:custom `  
+
+One-liner:
+```sh
+./gradlew komga:build && ./gradlew prepareThymeLeaf && ./gradlew jreleaserPackage && docker build -t komga:rp-test build/jreleaser/package/komga/docker/
+```
+
+#### Build docker with build
+
+- Install buildx, see official documentation: https://docs.docker.com/engine/install/ , or in debian bookworm, you can declare the debian repository with the script https://docs.docker.com/engine/install/debian/ and only install the buildx plugin with `apt install docker-buildx-plugin` (or install it manually)
+
+- build with buildx `docker buildx build --platform linux/amd64 -t komga:custom build/jreleaser/package/komga/docker/`
+
+One-liner:
+```sh
+./gradlew komga:build && ./gradlew prepareThymeLeaf && ./gradlew jreleaserPackage && docker buildx build --platform linux/amd64 -t komga:custom build/jreleaser/package/komga/docker/
+```
+
+
+
+
+
+----
+
+
 [![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/komga?label=OpenCollective%20Sponsors&color=success)](https://opencollective.com/komga) [![GitHub Sponsors](https://img.shields.io/github/sponsors/gotson?label=Github%20Sponsors&color=success)](https://github.com/sponsors/gotson)
 [![Discord](https://img.shields.io/discord/678794935368941569?label=Discord&color=blue)](https://discord.gg/TdRpkDu)
 
