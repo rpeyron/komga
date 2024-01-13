@@ -42,8 +42,11 @@ One-liner:
 ./gradlew komga:build && ./gradlew prepareThymeLeaf && ./gradlew jreleaserPackage && docker buildx build --platform linux/amd64 -t komga:custom build/jreleaser/package/komga/docker/
 ```
 
+#### Clean
 
-
+```sh
+./gradlew clean && rm -Rf komga-webui/node_modules && rm -Rf komga-webui/dist && rm -Rf .gradle
+```
 
 
 ----
