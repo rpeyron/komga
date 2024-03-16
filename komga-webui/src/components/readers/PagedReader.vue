@@ -22,7 +22,7 @@
   <v-zoomer style="width:100%" 
             :aspect-ratio="contentAspectRatio"             
             >
-      <div v-on:mousemove.prevent v-on:mouseup.prevent v-on:mousedown.prevent
+      <div v-on:mousemove.prevent v-on:mouseup="handleMouseUp()" v-on:mousedown="handleMouseDown()"
            v-on:touchstart.prevent v-on:touchend.prevent v-on:touchmove.prevent
            v-on:click="handleClick()" v-on:dblclick="handleDoubleClick()">
       <v-carousel v-model="carouselPage"
@@ -88,6 +88,7 @@ export default Vue.extend({
       contentAspectRatio: 1.0,
       singleClickTimeout: undefined as any,
       singleClickCanClick: true,
+      noDragCanClick: true,
     }
   },
   props: {
@@ -224,8 +225,18 @@ export default Vue.extend({
     centerClick() {
       this.$emit('menu')
     },
+    handleMouseDown() {
+      document.addEventListener('mousemove', this.handleMouseMove)
+    },
+    handleMouseMove() {
+      this.noDragCanClick = false
+    },
+    handleMouseUp() {
+      document.removeEventListener('mousemove', this.handleMouseMove)
+      setTimeout(() => this.noDragCanClick = true, 50)
+    },
     handleClick() {
-      if (this.singleClickCanClick) {
+      if (this.singleClickCanClick && this.noDragCanClick) {
         this.singleClickTimeout = setTimeout(() => this.centerClick(), 300) 
         this.singleClickCanClick = false
         setTimeout(() => this.singleClickCanClick = true, 500)
