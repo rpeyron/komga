@@ -37,8 +37,7 @@ import router from './router'
 import store from './store'
 import i18n from './i18n'
 
-// @ts-ignore // note you must downgrade to vue-panzoom 1.1.3 to use with Vue 2 (later version use requirements that requires Vue 3)
-import panZoom from 'vue-panzoom'
+import VueZoomer from 'vue-zoomer'
 
 Vue.prototype.$_ = _
 Vue.prototype.$eventHub = new Vue()
@@ -80,7 +79,7 @@ Vue.use(komgaHistory, {http: Vue.prototype.$http})
 Vue.use(komgaAnnouncements, {http: Vue.prototype.$http})
 Vue.use(komgaSettings, {http: Vue.prototype.$http})
 
-Vue.use(panZoom)
+Vue.use(VueZoomer)
 
 Vue.config.productionTip = false
 

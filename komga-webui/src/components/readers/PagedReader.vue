@@ -7,17 +7,22 @@
                down: () => {if(swipe) {verticalPrev()}}
              }"
   >
-  <panZoom :options="{
-                        bounds: true,
-                        boundsPadding: 0,
-                        minZoom: 1,
-                        zoomDoubleClickSpeed: 2.5,
-                        filterKey: () => { return true }, // Prevent panzoom to handle keyboard
-                        beforeWheel: () => { return false }, // true to Prevent panzoom to handle wheel
-                        onDoubleClick: onDoubleClick, 
-                        onClick: centerClick,
-                        }" @init="onInitPanzoom" @transform="onTransform">
 
+    <!--  clickable zones (not active with pan-ozom) -->
+    <div v-if="!vertical"  @click="turnLeft()" class="left-quarter" />
+    <div v-if="!vertical"  @click="turnRight()" class="right-quarter" />
+    <div v-if="vertical"   @click="verticalPrev()" class="top-quarter" />
+    <div v-if="vertical"   @click="verticalNext()" class="bottom-quarter" />
+
+    <!--  clickable zone: menu  -->
+    <div @click="centerClick()" :class="`${vertical ? 'center-vertical' : 'center-horizontal'}`"  />
+  
+  <v-zoomer style="width:100%" 
+            :aspect-ratio="contentAspectRatio"             
+            >
+      <div v-on:mousemove.prevent v-on:mouseup.prevent v-on:mousedown.prevent
+           v-on:touchstart.prevent v-on:touchend.prevent v-on:touchmove.prevent
+           v-on:click="handleClick()" v-on:dblclick="handleDoubleClick()">
       <v-carousel v-model="carouselPage"
                 :show-arrows="false"
                 :continuous="false"
@@ -25,9 +30,8 @@
                 :vertical="vertical"
                 hide-delimiters
                 touchless
-                height="100%"
+                height="100%" 
     >
-      <!--  Carousel: pages  -->
       <v-carousel-item v-for="(spread, i) in spreads"
                        :key="`spread${i}`"
                        :eager="eagerLoad(i)"
@@ -38,53 +42,29 @@
       >
         <div class="full-height d-flex flex-column justify-center">
           <div :class="`d-flex flex-row${flipDirection ? '-reverse' : ''} justify-center px-0 mx-0`">
+            <span ref="images">
             <img v-for="(page, j) in spread"
                  :alt="`Page ${page.number}`"
                  :key="`spread${i}-${j}`"
                  :src="page.url"
                  :class="imgClass(spread)"
                  class="img-fit-all"
+                 @load="onImageLoad"
             />
+          </span>
           </div>
         </div>
       </v-carousel-item>
-    </v-carousel>
-  </panZoom>
-
-    <!--  clickable zone: left  -->
-    <div v-if="!vertical"
-         @click="turnLeft()"
-         class="left-quarter"
-         style="z-index: -1;"
-    />
-
-    <!--  clickable zone: right  -->
-    <div v-if="!vertical"
-         @click="turnRight()"
-         class="right-quarter"
-         style="z-index: -1;"
-    />
-
-    <!--  clickable zone: top  -->
-    <div v-if="vertical"
-         @click="verticalPrev()"
-         class="top-quarter"
-         style="z-index: -1;"
-    />
-
-    <!--  clickable zone: bottom  -->
-    <div v-if="vertical"
-         @click="verticalNext()"
-         class="bottom-quarter"
-         style="z-index: -1;"
-    />
-
-    <!--  clickable zone: menu  -->
-    <div @click="centerClick()"
-         :class="`${vertical ? 'center-vertical' : 'center-horizontal'}`"
-         style="z-index: -1;"
-    />
+    </v-carousel> 
   </div>
+  </v-zoomer>
+
+  <div v-if="!vertical" @click="turnLeft()" class="page-button page-left">&#x1F780;&nbsp;</div>
+  <div v-if="!vertical" @click="turnRight()" class="page-button page-right">&nbsp;&#x1F782;</div>
+  <div v-if="vertical" @click="verticalPrev()" class="page-button page-top">&#x1F781;</div>
+  <div v-if="vertical" @click="verticalNext()" class="page-button page-bottom">&#x1F783;</div>
+
+</div>
 </template>
 
 <script lang="ts">
@@ -94,6 +74,7 @@ import {PagedReaderLayout, ScaleType} from '@/types/enum-reader'
 import {shortcutsLTR, shortcutsRTL, shortcutsVertical} from '@/functions/shortcuts/paged-reader'
 import {PageDtoWithUrl} from '@/types/komga-books'
 import {buildSpreads} from '@/functions/book-spreads'
+import {debounce} from 'lodash'
 
 export default Vue.extend({
   name: 'PagedReader',
@@ -102,7 +83,9 @@ export default Vue.extend({
       logger: 'PagedReader',
       carouselPage: 0,
       spreads: [] as PageDtoWithUrl[][],
-      panzoomInstance: undefined as any,
+      contentAspectRatio: 1.0,
+      singleClickTimeout: undefined as any,
+      singleClickCanClick: true,
     }
   },
   props: {
@@ -212,9 +195,6 @@ export default Vue.extend({
     },
   },
   methods: {
-    onInitPanzoom(panzoomInstance: any, id: any) {
-      this.panzoomInstance = panzoomInstance
-    },
     keyPressed(e: KeyboardEvent) {
       this.shortcuts[e.key]?.execute(this)
     },
@@ -241,6 +221,16 @@ export default Vue.extend({
     },
     centerClick() {
       this.$emit('menu')
+    },
+    handleClick() {
+      if (this.singleClickCanClick) {
+        this.singleClickTimeout = setTimeout(() => this.centerClick(), 300) 
+        this.singleClickCanClick = false
+        setTimeout(() => this.singleClickCanClick = true, 500)
+      }
+    },
+    handleDoubleClick() {
+      if (this.singleClickTimeout) clearTimeout(this.singleClickTimeout)
     },
     turnRight() {
       if (!this.vertical)
@@ -272,20 +262,6 @@ export default Vue.extend({
         this.$emit('jump-next')
       }
     },
-    onDoubleClick(e: MouseEvent) {
-      if (this.panzoomInstance && this.panzoomInstance.getTransform()) {
-        let transform = this.panzoomInstance.getTransform()
-        if (transform.scale > 2 ) {
-          setTimeout(() => {this.panzoomInstance.zoomTo(e.offsetX, e.offsetY, 1/(this.panzoomInstance.getTransform().scale))}, 50)
-        }
-      } 
-    },
-    onTransform() {
-      if (this.panzoomInstance && this.panzoomInstance.getTransform()) {
-        let transform = this.panzoomInstance.getTransform()
-        this.$debug('onTransform', transform, this.panzoomInstance)
-      } 
-    },
     toSpreadIndex(i: number): number {
       this.$debug('[toSpreadIndex]', `i:${i}`, `isDoublePages:${this.isDoublePages}`)
       if (this.spreads.length > 0) {
@@ -303,6 +279,11 @@ export default Vue.extend({
       }
       return i - 1
     },
+    onImageLoad() {
+      if (this.$refs.images) {
+        this.contentAspectRatio = this.$refs.images.width / this.$refs.images.height
+      }
+    },
   },
 })
 </script>
@@ -310,6 +291,29 @@ export default Vue.extend({
 .full-height {
   height: 100%;
 }
+
+.page-button {
+  opacity: 50%;
+  background-color: lightgrey;
+  border-radius: 50%;
+  height: 6%;
+  aspect-ratio: 1;
+  opacity: 50%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  font-size: xx-large;
+  color: darkgrey;
+}
+
+.page-button:hover {
+  opacity: 90%;
+}
+
+.page-left { position: absolute; top: 50%; left: 10px; transform: translate(0%, -50%); }
+.page-right { position: absolute; top: 50%; right: 10px; transform: translate(0%, -50%); }
+.page-top { position: absolute; left: 50%; top: 10px; transform: translate(-50%, 0%); }
+.page-bottom { position: absolute; left: 50%; bottom: 10px; transform: translate(-50%, 0%); }
 
 .left-quarter {
   top: 0;
