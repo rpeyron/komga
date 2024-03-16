@@ -35,11 +35,8 @@ data class Library(
   val hashPages: Boolean = false,
   val analyzeDimensions: Boolean = true,
   val oneshotsDirectory: String? = null,
-
   val unavailableDate: LocalDateTime? = null,
-
   val id: String = TsidCreator.getTsid256().toString(),
-
   override val createdDate: LocalDateTime = LocalDateTime.now(),
   override val lastModifiedDate: LocalDateTime = createdDate,
 ) : Auditable {

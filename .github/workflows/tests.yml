@@ -4,6 +4,7 @@ on:
   pull_request:
     paths-ignore:
       - 'komga-webui/src/locales/*'
+      - 'komga-tray/src/main/resources/org/gotson/komga/*'
   push:
     branches-ignore:
       - 'dependabot/**'
@@ -27,7 +28,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: build :komga-tray:jar
 
@@ -47,7 +48,7 @@ jobs:
 
       - name: Conveyor - compute JDK module list
         if: github.event_name == 'push'
-        uses: hydraulic-software/conveyor/actions/build@v13.0
+        uses: hydraulic-software/conveyor/actions/build@v13.1
         with:
           command: -f conveyor.detect.conf -Kapp.machines=mac.aarch64 make processed-jars
           signing_key: ${{ secrets.CONVEYOR_SIGNING_KEY }}

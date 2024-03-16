@@ -8,14 +8,16 @@
              }"
   >
 
-    <!--  clickable zones (not active with pan-ozom) -->
+    <!--  clickable zones (not active with pan-ozom) 
     <div v-if="!vertical"  @click="turnLeft()" class="left-quarter" />
     <div v-if="!vertical"  @click="turnRight()" class="right-quarter" />
     <div v-if="vertical"   @click="verticalPrev()" class="top-quarter" />
     <div v-if="vertical"   @click="verticalNext()" class="bottom-quarter" />
+    -->
 
-    <!--  clickable zone: menu  -->
+    <!--  clickable zone: menu  
     <div @click="centerClick()" :class="`${vertical ? 'center-vertical' : 'center-horizontal'}`"  />
+    -->
   
   <v-zoomer style="width:100%" 
             :aspect-ratio="contentAspectRatio"             
