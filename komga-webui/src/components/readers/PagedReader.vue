@@ -44,8 +44,8 @@
       >
         <div class="full-height d-flex flex-column justify-center">
           <div :class="`d-flex flex-row${flipDirection ? '-reverse' : ''} justify-center px-0 mx-0`">
-          <div v-if="!vertical" @click="turnLeft()" style="height: 100%; flex: 1 0 0;"></div>
-          <div v-if="vertical" @click="verticalPrev()" style="width: 100%; flex: 1 0 0;"></div>
+          <div v-if="!vertical" @click.stop="turnLeft()" style="height: 100%; flex: 1 0 0;"></div>
+          <div v-if="vertical" @click.stop="verticalPrev()" style="width: 100%; flex: 1 0 0;"></div>
               <span ref="images">
             <img v-for="(page, j) in spread"
                  :alt="`Page ${page.number}`"
@@ -56,8 +56,8 @@
                  @load="onImageLoad"
             />
           </span>
-          <div v-if="!vertical" @click="turnRight()" style="height: 100%; flex: 1 0 0;"></div>
-          <div v-if="vertical" @click="verticalNext()" style="width: 100%; flex: 1 0 0;"></div>
+          <div v-if="!vertical" @click.stop="turnRight()" style="height: 100%; flex: 1 0 0;"></div>
+          <div v-if="vertical" @click.stop="verticalNext()" style="width: 100%; flex: 1 0 0;"></div>
           </div>
         </div>
       </v-carousel-item>
