@@ -147,39 +147,40 @@ class LibraryController(
     library: LibraryUpdateDto,
   ) {
     libraryRepository.findByIdOrNull(libraryId)?.let { existing ->
-      val toUpdate = with(library) {
-        existing.copy(
-          id = libraryId,
-          name = name ?: existing.name,
-          root = root?.let { filePathToUrl(root!!) } ?: existing.root,
-          importComicInfoBook = importComicInfoBook ?: existing.importComicInfoBook,
-          importComicInfoSeries = importComicInfoSeries ?: existing.importComicInfoSeries,
-          importComicInfoCollection = importComicInfoCollection ?: existing.importComicInfoCollection,
-          importComicInfoReadList = importComicInfoReadList ?: existing.importComicInfoReadList,
-          importComicInfoSeriesAppendVolume = importComicInfoSeriesAppendVolume ?: existing.importComicInfoSeriesAppendVolume,
-          importEpubBook = importEpubBook ?: existing.importEpubBook,
-          importEpubSeries = importEpubSeries ?: existing.importEpubSeries,
-          importMylarSeries = importMylarSeries ?: existing.importMylarSeries,
-          importLocalArtwork = importLocalArtwork ?: existing.importLocalArtwork,
-          importBarcodeIsbn = importBarcodeIsbn ?: existing.importBarcodeIsbn,
-          scanForceModifiedTime = scanForceModifiedTime ?: existing.scanForceModifiedTime,
-          scanInterval = scanInterval?.toDomain() ?: existing.scanInterval,
-          scanOnStartup = scanOnStartup ?: existing.scanOnStartup,
-          scanCbx = scanCbx ?: existing.scanCbx,
-          scanPdf = scanPdf ?: existing.scanPdf,
-          scanEpub = scanEpub ?: existing.scanEpub,
-          scanDirectoryExclusions = if (isSet("scanDirectoryExclusions")) scanDirectoryExclusions ?: emptySet() else existing.scanDirectoryExclusions,
-          repairExtensions = repairExtensions ?: existing.repairExtensions,
-          convertToCbz = convertToCbz ?: existing.convertToCbz,
-          emptyTrashAfterScan = emptyTrashAfterScan ?: existing.emptyTrashAfterScan,
-          seriesCover = seriesCover?.toDomain() ?: existing.seriesCover,
-          seriesSort = seriesSort?.toDomain() ?: existing.seriesSort,
-          hashFiles = hashFiles ?: existing.hashFiles,
-          hashPages = hashPages ?: existing.hashPages,
-          analyzeDimensions = analyzeDimensions ?: existing.analyzeDimensions,
-          oneshotsDirectory = if (isSet("oneshotsDirectory")) oneshotsDirectory?.ifBlank { null } else existing.oneshotsDirectory,
-        )
-      }
+      val toUpdate =
+        with(library) {
+          existing.copy(
+            id = libraryId,
+            name = name ?: existing.name,
+            root = root?.let { filePathToUrl(root!!) } ?: existing.root,
+            importComicInfoBook = importComicInfoBook ?: existing.importComicInfoBook,
+            importComicInfoSeries = importComicInfoSeries ?: existing.importComicInfoSeries,
+            importComicInfoCollection = importComicInfoCollection ?: existing.importComicInfoCollection,
+            importComicInfoReadList = importComicInfoReadList ?: existing.importComicInfoReadList,
+            importComicInfoSeriesAppendVolume = importComicInfoSeriesAppendVolume ?: existing.importComicInfoSeriesAppendVolume,
+            importEpubBook = importEpubBook ?: existing.importEpubBook,
+            importEpubSeries = importEpubSeries ?: existing.importEpubSeries,
+            importMylarSeries = importMylarSeries ?: existing.importMylarSeries,
+            importLocalArtwork = importLocalArtwork ?: existing.importLocalArtwork,
+            importBarcodeIsbn = importBarcodeIsbn ?: existing.importBarcodeIsbn,
+            scanForceModifiedTime = scanForceModifiedTime ?: existing.scanForceModifiedTime,
+            scanInterval = scanInterval?.toDomain() ?: existing.scanInterval,
+            scanOnStartup = scanOnStartup ?: existing.scanOnStartup,
+            scanCbx = scanCbx ?: existing.scanCbx,
+            scanPdf = scanPdf ?: existing.scanPdf,
+            scanEpub = scanEpub ?: existing.scanEpub,
+            scanDirectoryExclusions = if (isSet("scanDirectoryExclusions")) scanDirectoryExclusions ?: emptySet() else existing.scanDirectoryExclusions,
+            repairExtensions = repairExtensions ?: existing.repairExtensions,
+            convertToCbz = convertToCbz ?: existing.convertToCbz,
+            emptyTrashAfterScan = emptyTrashAfterScan ?: existing.emptyTrashAfterScan,
+            seriesCover = seriesCover?.toDomain() ?: existing.seriesCover,
+            seriesSort = seriesSort?.toDomain() ?: existing.seriesSort,
+            hashFiles = hashFiles ?: existing.hashFiles,
+            hashPages = hashPages ?: existing.hashPages,
+            analyzeDimensions = analyzeDimensions ?: existing.analyzeDimensions,
+            oneshotsDirectory = if (isSet("oneshotsDirectory")) oneshotsDirectory?.ifBlank { null } else existing.oneshotsDirectory,
+          )
+        }
       try {
         libraryLifecycle.updateLibrary(toUpdate)
         if (toUpdate.seriesSort != existing.seriesSort) {

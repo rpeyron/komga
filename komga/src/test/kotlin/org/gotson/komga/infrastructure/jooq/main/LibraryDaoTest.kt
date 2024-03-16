@@ -49,37 +49,38 @@ class LibraryDaoTest(
 
     val modificationDate = LocalDateTime.now()
 
-    val updated = with(libraryDao.findById(library.id)) {
-      copy(
-        name = "LibraryUpdated",
-        root = URL("file://library2"),
-        importEpubSeries = false,
-        importEpubBook = false,
-        importComicInfoCollection = false,
-        importComicInfoSeries = false,
-        importComicInfoBook = false,
-        importComicInfoReadList = false,
-        importComicInfoSeriesAppendVolume = false,
-        importMylarSeries = false,
-        importBarcodeIsbn = false,
-        importLocalArtwork = false,
-        repairExtensions = true,
-        convertToCbz = true,
-        emptyTrashAfterScan = true,
-        seriesCover = Library.SeriesCover.LAST,
-        seriesSort = Library.SeriesSort.FILE_MODIFIED_ASC,
-        hashFiles = false,
-        hashPages = true,
-        analyzeDimensions = false,
-        scanForceModifiedTime = true,
-        scanCbx = false,
-        scanEpub = false,
-        scanPdf = false,
-        scanInterval = Library.ScanInterval.DAILY,
-        scanOnStartup = true,
-        scanDirectoryExclusions = setOf("a", "b"),
-      )
-    }
+    val updated =
+      with(libraryDao.findById(library.id)) {
+        copy(
+          name = "LibraryUpdated",
+          root = URL("file://library2"),
+          importEpubSeries = false,
+          importEpubBook = false,
+          importComicInfoCollection = false,
+          importComicInfoSeries = false,
+          importComicInfoBook = false,
+          importComicInfoReadList = false,
+          importComicInfoSeriesAppendVolume = false,
+          importMylarSeries = false,
+          importBarcodeIsbn = false,
+          importLocalArtwork = false,
+          repairExtensions = true,
+          convertToCbz = true,
+          emptyTrashAfterScan = true,
+          seriesCover = Library.SeriesCover.LAST,
+          seriesSort = Library.SeriesSort.FILE_MODIFIED_ASC,
+          hashFiles = false,
+          hashPages = true,
+          analyzeDimensions = false,
+          scanForceModifiedTime = true,
+          scanCbx = false,
+          scanEpub = false,
+          scanPdf = false,
+          scanInterval = Library.ScanInterval.DAILY,
+          scanOnStartup = true,
+          scanDirectoryExclusions = setOf("a", "b"),
+        )
+      }
 
     libraryDao.update(updated)
     val modified = libraryDao.findById(updated.id)
