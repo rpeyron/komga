@@ -19,7 +19,7 @@
     <div @click="centerClick()" :class="`${vertical ? 'center-vertical' : 'center-horizontal'}`"  />
     -->
   
-  <v-zoomer style="width:100%" 
+  <v-zoomer style="width:100%"
             :aspect-ratio="contentAspectRatio"             
             >
       <div v-on:mousemove.prevent v-on:mouseup="handleMouseUp()" v-on:mousedown="handleMouseDown()"
@@ -46,14 +46,14 @@
           <div :class="`d-flex flex-row${flipDirection ? '-reverse' : ''} justify-center px-0 mx-0`">
           <div v-if="!vertical" @click.stop="turnLeft()" style="height: 100%; flex: 1 0 0;"></div>
           <div v-if="vertical" @click.stop="verticalPrev()" style="width: 100%; flex: 1 0 0;"></div>
-              <span ref="images">
+              <span ref="`images${i}`">
             <img v-for="(page, j) in spread"
                  :alt="`Page ${page.number}`"
                  :key="`spread${i}-${j}`"
                  :src="page.url"
                  :class="imgClass(spread)"
                  class="img-fit-all"
-                 @load="onImageLoad"
+                 @load="calcImageRatio"
             />
           </span>
           <div v-if="!vertical" @click.stop="turnRight()" style="height: 100%; flex: 1 0 0;"></div>
@@ -141,6 +141,7 @@ export default Vue.extend({
       } else {
         this.$emit('update:page', 1)
       }
+      this.calcImageRatio()
     },
     page(val, old) {
       this.$debug('[watch:page]', `old:${old}`, `new:${val}`)
@@ -296,9 +297,11 @@ export default Vue.extend({
       }
       return i - 1
     },
-    onImageLoad() {
-      if (this.$refs.images) {
-        this.contentAspectRatio = this.$refs.images.width / this.$refs.images.height
+    calcImageRatio(payload: Event) {
+      let imagesSpan = (payload.target)?payload.target.parentElement:null
+      //let curImagesSpan = this.$refs[`images${this.carouselPage}`]
+      if (imagesSpan) {
+        this.contentAspectRatio = imagesSpan.clientWidth / imagesSpan.clientHeight
       }
     },
   },
