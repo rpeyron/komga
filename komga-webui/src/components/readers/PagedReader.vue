@@ -222,7 +222,7 @@ export default Vue.extend({
       }
     },
     eagerLoad(spreadIndex: number): boolean {
-      return Math.abs(this.carouselPage - spreadIndex) <= 2
+      return Math.abs(this.carouselPage - spreadIndex) <= 6
     },
     preRender(spreadIndex: number): boolean {
       return Math.abs(this.carouselPage - spreadIndex) > (this.animations ? 1 : 0)
